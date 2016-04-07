@@ -25,6 +25,7 @@ func getEvents(missionId string) ([]Event, error) {
 		}
 
 		// Move properties inline to event object
+		event.Player = event.Data.Player
 		event.Projectile = event.Data.Projectile
 		event.Unit = event.Data.Unit
 		event.Vehicle = event.Data.Vehicle

@@ -12,15 +12,22 @@ type Event struct {
 	ID         int32       `json:"id"`
 	Data       *EventData  `json:"data,omitempty"`
 	Timestamp  time.Time   `json:"timestamp"`
+	Player     *Player     `json:"player,omitempty"`
 	Projectile *Projectile `json:"projectile,omitempty"`
 	Unit       *Unit       `json:"unit,omitempty"`
 	Vehicle    *Vehicle    `json:"vehicle,omitempty"`
 }
 
 type EventData struct {
+	Player     *Player     `json:"player,omitempty"`
 	Projectile *Projectile `json:"projectile,omitempty"`
 	Unit       *Unit       `json:"unit,omitempty"`
 	Vehicle    *Vehicle    `json:"vehicle,omitempty"`
+}
+
+type Player struct {
+	Name string `json:"name"`
+	UID  string `json:"uid"`
 }
 
 type Position struct {
