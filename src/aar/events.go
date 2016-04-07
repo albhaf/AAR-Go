@@ -9,7 +9,7 @@ import (
 )
 
 func getEvents(missionId string) ([]Event, error) {
-	rows, err := DB.Query("SELECT id, data, timestamp FROM events WHERE mission_id = $1", missionId)
+	rows, err := DB.Query("SELECT id, data, timestamp FROM events WHERE mission_id = $1 ORDER BY timestamp ASC", missionId)
 
 	if err != nil {
 		return nil, err
