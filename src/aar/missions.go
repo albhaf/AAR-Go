@@ -14,7 +14,7 @@ func getMissions() ([]Mission, error) {
 	}
 	defer rows.Close()
 
-	res := make([]Mission, 0, 100)
+	res := make([]Mission, 0)
 	for rows.Next() {
 		mission := Mission{}
 		e := rows.Scan(&mission.ID, &mission.Name, &mission.World)

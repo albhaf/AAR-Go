@@ -16,7 +16,7 @@ func getEvents(missionId string) ([]Event, error) {
 	}
 	defer rows.Close()
 
-	res := make([]Event, 0, 100)
+	res := make([]Event, 0)
 	for rows.Next() {
 		event := Event{}
 		e := rows.Scan(&event.ID, &event.Data, &event.Timestamp)
