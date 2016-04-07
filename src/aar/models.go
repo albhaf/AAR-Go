@@ -9,9 +9,12 @@ type Mission struct {
 }
 
 type Event struct {
-	ID        int32     `json:"id"`
-	Data      EventData `json:"data"`
-	Timestamp time.Time `json:"timestamp"`
+	ID         int32       `json:"id"`
+	Data       *EventData  `json:"data,omitempty"`
+	Timestamp  time.Time   `json:"timestamp"`
+	Projectile *Projectile `json:"projectile,omitempty"`
+	Unit       *Unit       `json:"unit,omitempty"`
+	Vehicle    *Vehicle    `json:"vehicle,omitempty"`
 }
 
 type EventData struct {

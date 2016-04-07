@@ -24,6 +24,12 @@ func getEvents(missionId string) ([]Event, error) {
 			return nil, e
 		}
 
+		// Move properties inline to event object
+		event.Projectile = event.Data.Projectile
+		event.Unit = event.Data.Unit
+		event.Vehicle = event.Data.Vehicle
+		event.Data = nil
+
 		res = append(res, event)
 	}
 
