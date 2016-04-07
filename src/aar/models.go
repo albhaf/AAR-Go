@@ -40,6 +40,7 @@ type Position struct {
 type Projectile struct {
 	ID         string   `json:"id"`
 	Position   Position `json:"position"`
+	Side       string   `json:"side"`
 	Simulation string   `json:"simulation"`
 }
 
