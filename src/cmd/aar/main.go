@@ -27,6 +27,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/missions", aar.MissionsHandler)
+	r.HandleFunc("/missions/{missionId}", aar.MissionHandler)
 	r.HandleFunc("/missions/{missionId}/events", aar.EventsHandler)
 
 	// Bind to a port and pass our router in
