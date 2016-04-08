@@ -9,7 +9,7 @@ import (
 )
 
 func getMissions() ([]Mission, error) {
-	rows, err := DB.Query("SELECT id, name, world FROM missions")
+	rows, err := DB.Query("SELECT id, name, world FROM missions ORDER BY created_at DESC")
 
 	if err != nil {
 		return nil, err
