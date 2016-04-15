@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx"
 )
@@ -31,5 +32,5 @@ func main() {
 	r.HandleFunc("/missions/{missionId}/events", aar.EventsHandler)
 
 	// Bind to a port and pass our router in
-	http.ListenAndServe(":"+port, r)
+	http.ListenAndServe(":"+port, handlers.CORS()(r))
 }
