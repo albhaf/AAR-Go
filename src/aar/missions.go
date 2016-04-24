@@ -9,7 +9,7 @@ import (
 )
 
 func getMissions() ([]Mission, error) {
-	rows, err := DB.Query("SELECT id, name, world FROM missions ORDER BY created_at DESC")
+	rows, err := DB.Query("SELECT id, created_at, name, world FROM missions ORDER BY created_at DESC")
 
 	if err != nil {
 		return nil, err
@@ -19,7 +19,7 @@ func getMissions() ([]Mission, error) {
 	res := make([]Mission, 0)
 	for rows.Next() {
 		mission := Mission{}
-		e := rows.Scan(&mission.ID, &mission.Name, &mission.World)
+		e := rows.Scan(&mission.ID, &mission.CreatedAt, &mission.Name, &mission.World)
 		if e != nil {
 			return nil, e
 		}

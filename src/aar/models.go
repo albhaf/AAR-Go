@@ -3,9 +3,10 @@ package aar
 import "time"
 
 type Mission struct {
-	ID    int32  `json:"id"`
-	Name  string `json:"name"`
-	World string `json:"world"`
+	ID        int32     `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	Name      string    `json:"name"`
+	World     string    `json:"world"`
 }
 
 type Event struct {
