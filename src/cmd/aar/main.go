@@ -32,5 +32,5 @@ func main() {
 	r.HandleFunc("/missions/{missionId}/events", aar.EventsHandler)
 
 	// Bind to a port and pass our router in
-	http.ListenAndServe(":"+port, handlers.CORS()(r))
+	http.ListenAndServe(":"+port, handlers.CompressHandler(handlers.CORS()(r)))
 }
