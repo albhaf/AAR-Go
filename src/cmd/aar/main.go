@@ -22,7 +22,7 @@ func main() {
 	pgConfig, err := pgx.ParseURI(databaseUrl)
 	aar.DB, err = pgx.Connect(pgConfig)
 	if err != nil {
-		log.Fatal("Error opening database: %q", err)
+		log.Fatalf("Error opening database: %q", err)
 		os.Exit(1)
 	}
 
