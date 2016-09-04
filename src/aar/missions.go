@@ -9,7 +9,30 @@ import (
 )
 
 func getMissions() ([]Mission, error) {
-	rows, err := DB.Query("SELECT id, created_at, name, world FROM missions ORDER BY created_at DESC")
+	rows, err := DB.Query(`
+		SELECT
+			id,
+			created_at,
+			EXTRACT(
+				epoch FROM (
+					SELECT timestamp
+					FROM events
+					WHERE events.mission_id = missions.id
+					ORDER BY timestamp DESC
+					LIMIT 1
+				) - (
+					SELECT timestamp
+					FROM events
+					WHERE events.mission_id = missions.id
+					ORDER BY timestamp ASC
+					LIMIT 1
+				)
+			)::int AS length,
+			name,
+			world
+		FROM missions
+		ORDER BY created_at DESC
+	`)
 
 	if err != nil {
 		return nil, err
@@ -19,7 +42,7 @@ func getMissions() ([]Mission, error) {
 	res := make([]Mission, 0)
 	for rows.Next() {
 		mission := Mission{}
-		e := rows.Scan(&mission.ID, &mission.CreatedAt, &mission.Name, &mission.World)
+		e := rows.Scan(&mission.ID, &mission.CreatedAt, &mission.Length, &mission.Name, &mission.World)
 		if e != nil {
 			return nil, e
 		}

@@ -5,6 +5,7 @@ import "time"
 type Mission struct {
 	ID        int32     `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
+	Length    *int32    `json:"length"`
 	Name      string    `json:"name"`
 	World     string    `json:"world"`
 }
