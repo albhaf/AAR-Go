@@ -38,6 +38,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/newrelic/go-agent",
+			"repository": "https://github.com/newrelic/go-agent",
+			"revision": "a923caa59930cbb1b27d2a9fb2d5663d9e5c637c",
+			"branch": "master"
+		},
+		{
 			"importpath": "gopkg.in/inconshreveable/log15.v2",
 			"repository": "https://gopkg.in/inconshreveable/log15.v2",
 			"revision": "b105bd37f74e5d9dc7b6ad7806715c7a2b83fd3f",
