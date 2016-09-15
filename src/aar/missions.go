@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func getMissions() ([]Mission, error) {
+func outputMissions(w http.ResponseWriter) error {
 	rows, err := DB.Query(`
 		SELECT
 			id,
@@ -35,59 +35,74 @@ func getMissions() ([]Mission, error) {
 	`)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer rows.Close()
 
-	res := make([]Mission, 0)
+	enc := json.NewEncoder(w)
+	w.Write([]byte("["))
+
+	var first = true
+
 	for rows.Next() {
-		mission := Mission{}
-		e := rows.Scan(&mission.ID, &mission.CreatedAt, &mission.Length, &mission.Name, &mission.World)
-		if e != nil {
-			return nil, e
+		if first {
+			first = false
+		} else {
+			w.Write([]byte(","))
 		}
 
-		res = append(res, mission)
+		mission := Mission{}
+		e := rows.Scan(&mission.ID, &mission.CreatedAt, &mission.Length, &mission.Name, &mission.World)
+		if e == nil {
+			enc.Encode(mission)
+		}
 	}
 
-	return res, nil
+	w.Write([]byte("]"))
+
+	return nil
 }
 
-func getMission(missionId string) (*Mission, error) {
-	row := DB.QueryRow("SELECT id, name, world FROM missions WHERE id = $1", missionId)
+func outputMission(missionID string, w http.ResponseWriter) error {
+	row := DB.QueryRow(`
+		SELECT
+			id,
+			name,
+			world
+		FROM missions
+		WHERE id = $1
+	`, missionID)
 	mission := new(Mission)
 	err := row.Scan(&mission.ID, &mission.Name, &mission.World)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return mission, nil
+	json.NewEncoder(w).Encode(mission)
+
+	return nil
 }
 
 func MissionsHandler(w http.ResponseWriter, r *http.Request) {
-	missions, err := getMissions()
+	err := outputMissions(w)
 
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		log.Println(err)
 		return
 	}
-
-	json.NewEncoder(w).Encode(missions)
 }
 
 func MissionHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	missionId := params["missionId"]
+	missionID := params["missionId"]
 
-	mission, err := getMission(missionId)
+	err := outputMission(missionID, w)
 
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		log.Println(err)
 		return
 	}
-
-	json.NewEncoder(w).Encode(mission)
 }
