@@ -8,46 +8,63 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func getEvents(missionId string) ([]Event, error) {
-	rows, err := DB.Query("SELECT id, data, timestamp FROM events WHERE mission_id = $1 ORDER BY timestamp ASC", missionId)
+func outputEvents(missionID string, w http.ResponseWriter) error {
+	rows, err := DB.Query(`
+		SELECT
+			id,
+			data,
+			timestamp
+		FROM events
+		WHERE mission_id = $1
+		ORDER BY timestamp ASC
+	`, missionID)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer rows.Close()
 
-	res := make([]Event, 0)
+	enc := json.NewEncoder(w)
+	w.Write([]byte("["))
+
+	var first = true
+
 	for rows.Next() {
-		event := Event{}
-		e := rows.Scan(&event.ID, &event.Data, &event.Timestamp)
-		if e != nil {
-			return nil, e
+		if first {
+			first = false
+		} else {
+			w.Write([]byte(","))
 		}
 
-		// Move properties inline to event object
-		event.Player = event.Data.Player
-		event.Projectile = event.Data.Projectile
-		event.Unit = event.Data.Unit
-		event.Vehicle = event.Data.Vehicle
-		event.Data = nil
+		event := Event{}
+		e := rows.Scan(&event.ID, &event.Data, &event.Timestamp)
 
-		res = append(res, event)
+		if e == nil {
+			// Move properties inline to event object
+			event.Player = event.Data.Player
+			event.Projectile = event.Data.Projectile
+			event.Unit = event.Data.Unit
+			event.Vehicle = event.Data.Vehicle
+			event.Data = nil
+
+			enc.Encode(event)
+		}
 	}
 
-	return res, nil
+	w.Write([]byte("]"))
+
+	return nil
 }
 
 func EventsHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	missionId := params["missionId"]
+	missionID := params["missionId"]
 
-	events, err := getEvents(missionId)
+	err := outputEvents(missionID, w)
 
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		log.Println(err)
 		return
 	}
-
-	json.NewEncoder(w).Encode(events)
 }
