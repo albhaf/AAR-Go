@@ -2,7 +2,7 @@ package main
 
 import (
 	"aar"
-	"log"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -27,7 +27,7 @@ func main() {
 	pgConfig, err := pgx.ParseURI(databaseURL)
 	aar.DB, err = pgx.Connect(pgConfig)
 	if err != nil {
-		log.Fatalf("Error opening database: %q", err)
+		fmt.Fprintf(os.Stderr, "Error opening database: %q", err)
 		os.Exit(1)
 	}
 
@@ -45,7 +45,7 @@ func main() {
 		app, err := newrelic.NewApplication(config)
 
 		if err != nil {
-			log.Fatalf("Error starting New Relic: %q", err)
+			fmt.Fprintf(os.Stderr, "Error starting New Relic: %q", err)
 			os.Exit(1)
 		}
 

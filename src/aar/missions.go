@@ -2,8 +2,9 @@ package aar
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -52,10 +53,13 @@ func outputMissions(w http.ResponseWriter) error {
 		}
 
 		mission := Mission{}
-		e := rows.Scan(&mission.ID, &mission.CreatedAt, &mission.Length, &mission.Name, &mission.World)
-		if e == nil {
-			enc.Encode(mission)
+		err := rows.Scan(&mission.ID, &mission.CreatedAt, &mission.Length, &mission.Name, &mission.World)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error reading mission row from database: %v", err)
+			continue
 		}
+
+		enc.Encode(mission)
 	}
 
 	w.Write([]byte("]"))
@@ -79,18 +83,13 @@ func outputMission(missionID string, w http.ResponseWriter) error {
 		return err
 	}
 
-	json.NewEncoder(w).Encode(mission)
-
-	return nil
+	return json.NewEncoder(w).Encode(mission)
 }
 
 func MissionsHandler(w http.ResponseWriter, r *http.Request) {
-	err := outputMissions(w)
-
-	if err != nil {
+	if err := outputMissions(w); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		log.Println(err)
-		return
+		fmt.Fprintf(os.Stderr, "Error reading missions: %v", err)
 	}
 }
 
@@ -98,11 +97,8 @@ func MissionHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	missionID := params["missionId"]
 
-	err := outputMission(missionID, w)
-
-	if err != nil {
+	if err := outputMission(missionID, w); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		log.Println(err)
-		return
+		fmt.Fprintf(os.Stderr, "Error reading mission: %v", err)
 	}
 }
