@@ -6,18 +6,21 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx"
 )
 
-func outputEvents(missionID string, w http.ResponseWriter) error {
-	rows, err := DB.Query(`
-		SELECT
-			id,
-			data,
-			timestamp
-		FROM events
-		WHERE mission_id = $1
-		ORDER BY timestamp ASC
-	`, missionID)
+type resultsWrapper interface {
+	Close()
+	Next() bool
+	Scan(...interface{}) error
+}
+
+type eventsFetcher interface {
+	GetEvents(string) (resultsWrapper, error)
+}
+
+func outputEvents(fetcher eventsFetcher, missionID string, w http.ResponseWriter) error {
+	rows, err := fetcher.GetEvents(missionID)
 
 	if err != nil {
 		return err
@@ -56,11 +59,29 @@ func outputEvents(missionID string, w http.ResponseWriter) error {
 	return nil
 }
 
+type dbFetcher struct {
+	db *pgx.Conn
+}
+
+func (dbf *dbFetcher) GetEvents(missionID string) (resultsWrapper, error) {
+	return dbf.db.Query(`
+			SELECT
+				id,
+				data,
+				timestamp
+			FROM events
+			WHERE mission_id = $1
+			ORDER BY timestamp ASC
+		`, missionID)
+}
+
 func EventsHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	missionID := params["missionId"]
 
-	err := outputEvents(missionID, w)
+	fetcher := dbFetcher{DB}
+
+	err := outputEvents(&fetcher, missionID, w)
 
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
